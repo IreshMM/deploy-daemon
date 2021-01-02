@@ -1,0 +1,79 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.39">
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.30.0">
+      <projectUrl>https://github.com/CICD-Iresh/simple-java-maven-app.git/</projectUrl>
+      <displayName></displayName>
+    </com.coravy.hudson.plugins.github.GithubProjectProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>nexusRepoUrl</name>
+          <description></description>
+          <defaultValue>http://localhost:8081/repository/maven-releases/</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>artifactIdentifier</name>
+          <description></description>
+          <defaultValue>com.mycompany.app:my-app:1.0.0</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>callBackUrl</name>
+          <description></description>
+          <defaultValue>http://localhost:3000/webhooks/jenkinscallback</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.80">
+    <script>pipeline {
+    agent any
+
+    stages {
+        stage(&apos;Deploy&apos;) {
+                environment { 
+                    
+                }
+                tools {
+                    maven &apos;MAVEN_INSTALLATION&apos;
+                }
+                steps {
+                    sh &apos;&apos;&apos;
+                        mvn org.apache.maven.plugins:maven-dependency-plugin:2.1:get -DrepoUrl=${params.nexusRepoUrl} \
+                        -Dartifact=${params.artifactIdentifier}&quot;
+                    &apos;&apos;&apos;
+                } 
+        }
+    }
+    post {
+        always {
+            httpRequest acceptType: &apos;TEXT_PLAIN&apos;, consoleLogResponseBody: true, contentType: &apos;APPLICATION_JSON&apos;, httpMode: &apos;POST&apos;, requestBody: &quot;{\&quot;build_url\&quot;:\&quot;${env.BUILD_URL}\&quot;, \&quot;status\&quot;: \&quot;finished\&quot;}&quot;, responseHandle: &apos;NONE&apos;, timeout: 10, url:&quot;${params.callBackUrl}&quot;, wrapAsMultipart: false, validResponseCodes: &apos;100:500&apos;
+            deleteDir() /* clean up our workspace */
+        }
+        success {
+            httpRequest acceptType: &apos;TEXT_PLAIN&apos;, consoleLogResponseBody: true, contentType: &apos;APPLICATION_JSON&apos;, httpMode: &apos;POST&apos;, requestBody: &quot;{\&quot;build_url\&quot;:\&quot;${env.BUILD_URL}\&quot;, \&quot;status\&quot;: \&quot;success\&quot;}&quot;, responseHandle: &apos;NONE&apos;, timeout: 10, url:&quot;${params.callBackUrl}&quot;, wrapAsMultipart: false, validResponseCodes: &apos;100:500&apos;
+            echo &apos;I succeeeded!&apos;
+        }
+        unstable {
+            httpRequest acceptType: &apos;TEXT_PLAIN&apos;, consoleLogResponseBody: true, contentType: &apos;APPLICATION_JSON&apos;, httpMode: &apos;POST&apos;, requestBody: &quot;{\&quot;build_url\&quot;:\&quot;${env.BUILD_URL}\&quot;, \&quot;status\&quot;: \&quot;unstable\&quot;}&quot;, responseHandle: &apos;NONE&apos;, timeout: 10, url:&quot;${params.callBackUrl}&quot;, wrapAsMultipart: false, validResponseCodes: &apos;100:500&apos;
+            echo &apos;I am unstable :/&apos;
+        }
+        failure {
+            httpRequest acceptType: &apos;TEXT_PLAIN&apos;, consoleLogResponseBody: true, contentType: &apos;APPLICATION_JSON&apos;, httpMode: &apos;POST&apos;, requestBody: &quot;{\&quot;build_url\&quot;:\&quot;${env.BUILD_URL}\&quot;, \&quot;status\&quot;: \&quot;failure\&quot;}&quot;, responseHandle: &apos;NONE&apos;, timeout: 10, url:&quot;${params.callBackUrl}&quot;, wrapAsMultipart: false, validResponseCodes: &apos;100:500&apos;
+            echo &apos;I failed :(&apos;
+        }
+        
+    }
+}
+</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>

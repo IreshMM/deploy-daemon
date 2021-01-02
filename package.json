@@ -19,6 +19,8 @@
     "test": "jest"
   },
   "dependencies": {
+    "@types/jenkins": "^0.23.1",
+    "jenkins": "^0.28.1",
     "probot": "^10.9.5"
   },
   "devDependencies": {
