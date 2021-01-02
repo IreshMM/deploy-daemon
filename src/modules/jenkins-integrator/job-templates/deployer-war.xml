@@ -13,19 +13,19 @@
         <hudson.model.StringParameterDefinition>
           <name>nexusRepoUrl</name>
           <description></description>
-          <defaultValue>http://localhost:8081/repository/maven-releases/</defaultValue>
+          <defaultValue>NEXUSREPOURL</defaultValue>
           <trim>false</trim>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>artifactIdentifier</name>
           <description></description>
-          <defaultValue>com.mycompany.app:my-app:1.0.0</defaultValue>
+          <defaultValue>ARTIFACTIDENTIFIER</defaultValue>
           <trim>false</trim>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>callBackUrl</name>
           <description></description>
-          <defaultValue>http://localhost:3000/webhooks/jenkinscallback</defaultValue>
+          <defaultValue>CALLBACKURL</defaultValue>
           <trim>false</trim>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
